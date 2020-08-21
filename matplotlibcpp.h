@@ -98,6 +98,7 @@ struct _interpreter {
     PyObject *s_python_function_bar;
     PyObject *s_python_function_colorbar;
     PyObject *s_python_function_subplots_adjust;
+    PyObject *s_python_function_specgram;
 
 
     /* For now, _interpreter is implemented as a singleton since its currently not possible to have
@@ -240,6 +241,8 @@ private:
         s_python_function_bar = safe_import(pymod,"bar");
         s_python_function_colorbar = PyObject_GetAttrString(pymod, "colorbar");
         s_python_function_subplots_adjust = safe_import(pymod,"subplots_adjust");
+        s_python_function_specgram = safe_import(pymod, "specgram");
+
 #ifndef WITHOUT_NUMPY
         s_python_function_imshow = safe_import(pymod, "imshow");
 #endif
@@ -713,6 +716,36 @@ bool fill_between(const std::vector<Numeric>& x, const std::vector<Numeric>& y1,
     Py_DECREF(args);
     Py_DECREF(kwargs);
     if(res) Py_DECREF(res);
+
+    return res;
+}
+
+template <typename Numeric>
+bool specgram(const std::vector<Numeric> &x, Numeric Fs, long Fc = 0, const std::string& detrend = "none", 
+                const std::string& window = "window_hanning", long noverlap = 128, const std::string& cmap = "none",
+                long xextent = 0, long pad_to = 0, const std::string& sides = "default", bool scale_by_freq = true, 
+                const std::string& mode = "psd", const std::string& scale = "dB") {
+
+    detail::_interpreter::get();
+
+    PyObject* xarray = detail::get_array(x);
+
+    PyObject* kwargs = PyDict_New();
+    PyDict_SetItemString(kwargs, "Fs", PyFloat_FromDouble(Fs));
+    PyDict_SetItemString(kwargs, "Fc", PyLong_FromLong(Fc));
+    //TODO: remaining args
+
+    PyObject* plot_args = PyTuple_New(1);
+
+    PyTuple_SetItem(plot_args, 0, xarray);
+
+    PyObject* res =
+            PyObject_Call(detail::_interpreter::get().s_python_function_specgram, plot_args, kwargs);
+
+    Py_DECREF(plot_args);
+    Py_DECREF(kwargs);
+    if (res)
+        Py_DECREF(res);
 
     return res;
 }

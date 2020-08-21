@@ -1,5 +1,5 @@
 # Use C++11, dont warn on long-to-float conversion
-CXXFLAGS += -std=c++11 -Wno-conversion
+CXXFLAGS += -std=c++17 -Wno-conversion
 
 # Default to using system's default version of python
 PYTHON_BIN     ?= python3
@@ -18,7 +18,7 @@ WITHOUT_NUMPY   := $(findstring $(EXTRA_FLAGS), WITHOUT_NUMPY)
 # Examples requiring numpy support to compile
 EXAMPLES_NUMPY  := surface colorbar
 EXAMPLES        := minimal basic modern animation nonblock xkcd quiver bar \
-	           fill_inbetween fill update subplot2grid lines3d \
+	           fill_inbetween fill update subplot2grid lines3d specgram \
                    $(if $(WITHOUT_NUMPY),,$(EXAMPLES_NUMPY))
 
 # Prefix every example with 'examples/build/'
